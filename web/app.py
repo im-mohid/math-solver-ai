@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 import os
 import uuid
 
@@ -21,6 +22,24 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["200 per hour"],
 MAX_Q_LEN = 5000
 HEARTBEAT_TIMEOUT_SEC = 60
 BUCKET = "uploads"
+DEBUG_ERRORS = os.environ.get("DEBUG_ERRORS") == "1"
+
+
+def parse_search(v):
+    return {"1": "on", "0": "off", "on": "on", "off": "off"}.get(v, "auto")
+
+
+def parse_history(raw):
+    try:
+        items = json.loads(raw or "[]")
+    except Exception:
+        return []
+    out = []
+    if isinstance(items, list):
+        for m in items[-10:]:
+            if isinstance(m, dict) and m.get("role") in ("user", "assistant") and isinstance(m.get("content"), str):
+                out.append({"role": m["role"], "content": m["content"][:4000]})
+    return out
 
 MIME = {
     "pdf": "application/pdf", "txt": "text/plain", "md": "text/plain", "tex": "text/plain",
@@ -90,7 +109,12 @@ def ask():
         "input_type": input_type,
         "question": q,
         "file_url": file_path,
-        "options": {"language": language},
+        "options": {
+            "language": language,
+            "search": parse_search(request.form.get("search")),
+            "think": request.form.get("think") == "1",
+            "history": parse_history(request.form.get("history")),
+        },
     }).execute().data[0]
     return jsonify(job_id=job["id"])
 
@@ -109,7 +133,12 @@ def result(job_id):
     err = row.get("error")
     if err:
         # "USER: ..." = user ke dekhanor moto message; baki internal trace, dekhabo na
-        row["error"] = err[6:] if err.startswith("USER: ") else "Solve korte somossa hoyeche. Abar try koro."
+        if err.startswith("USER: "):
+            row["error"] = err[6:]
+        elif DEBUG_ERRORS:
+            row["error"] = "[debug] " + err[-500:]
+        else:
+            row["error"] = "Solve korte somossa hoyeche. Abar try koro."
     return jsonify(row)
 
 

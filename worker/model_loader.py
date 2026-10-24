@@ -53,14 +53,15 @@ class ModelManager:
         if self.four_bit:
             kwargs["quantization_config"] = BitsAndBytesConfig(
                 load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16,
-                bnb_4bit_quant_type="nf4")
+                bnb_4bit_quant_type="nf4",
+                llm_int8_skip_modules=["visual", "lm_head"] if name == "ocr" else None)
         else:
             kwargs["torch_dtype"] = torch.float16
 
         if name == "ocr":
             # NOTE: ekhono GPU te test kora hoyni
             from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
-            proc = AutoProcessor.from_pretrained(c["name"])
+            proc = AutoProcessor.from_pretrained(c["name"], min_pixels=256 * 28 * 28, max_pixels=1024 * 28 * 28)
             model = Qwen2_5_VLForConditionalGeneration.from_pretrained(c["name"], **kwargs)
             model.eval()
             return proc, model
@@ -79,14 +80,14 @@ class ModelManager:
             self._unload(name)
 
     # ---------- use ----------
-    def generate(self, name, messages, max_new_tokens=None):
+    def generate(self, name, messages, max_new_tokens=None, thinking=None):
         import torch
         c = self.cfg[name]
         tok, model = self._get(name)
         try:
             text = tok.apply_chat_template(
                 messages, tokenize=False, add_generation_prompt=True,
-                enable_thinking=bool(c.get("thinking", False)))
+                enable_thinking=bool(c.get("thinking", False) if thinking is None else thinking))
             inputs = tok([text], return_tensors="pt").to(model.device)
             with torch.no_grad():
                 out = model.generate(

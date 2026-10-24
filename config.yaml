@@ -2,12 +2,13 @@ models:
   load_in_4bit: true            # T4 (16GB) e dui model ekshathe rakhte true rakho
 
   language:                     # Bangla/English byakkha (Qwen)
-    enabled: true              # Phase 1: true
+    enabled: false              # Phase 1: true
     name: "Qwen/Qwen3-8B"       # latest model check kore nio
     lora_path: ""               # Bangla fine-tune hole Drive path
     resident: true              # true = GPU te load-i thakbe
     thinking: false
     max_new_tokens: 1800
+    think_max_new_tokens: 4000   # page e "Deep think" on thakle
 
   expert:                       # TOMAR super expert math model
     enabled: false              # model ready hole true
@@ -18,7 +19,7 @@ models:
     max_new_tokens: 3000
 
   ocr:                          # photo / scanned PDF porar jonno (vision model)
-    enabled: false
+    enabled: true
     name: "Qwen/Qwen2.5-VL-3B-Instruct"
     resident: false             # shudhu dorkar hole load hobe
 
@@ -28,6 +29,7 @@ worker:
   stale_job_minutes: 10
 
 features:
+  web_search:         {enabled: true}   # page e "Web search" toggle on thakle kaj kore
   file_reader:        {enabled: true}   # txt / pdf / image upload pora
   ocr_vl:             {enabled: true}   # model flag (models.ocr.enabled) na dile kichu kore na
   dummy_solver:       {enabled: true}   # kono model on na thakle test answer dey

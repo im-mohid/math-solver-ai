@@ -29,7 +29,9 @@ class FileReader(Feature):
             text = self._read_pdf(data, ctx)
         elif ext in ("png", "jpg", "jpeg", "webp"):
             from PIL import Image
-            ctx["images"] = [Image.open(io.BytesIO(data)).convert("RGB")]
+            img = Image.open(io.BytesIO(data)).convert("RGB")
+            img.thumbnail((1600, 1600))                 # boro photo GPU memory khay
+            ctx["images"] = [img]
             text = ""
         else:
             raise UserError("Ei file type support kora hoy na.")
@@ -44,12 +46,17 @@ class FileReader(Feature):
         if not ctx["document_text"] and not ctx["images"] and not ctx["user_question"]:
             raise UserError("File theke kono text pawa jayni.")
 
+        if ext == "pdf" and ctx["document_text"]:
+            ctx["answer"]["read_text"] = ctx["document_text"][:3000]
         compose_question(ctx)
         return ctx
 
     @staticmethod
     def _read_pdf(data, ctx):
-        import fitz  # pymupdf
+        try:
+            import pymupdf as fitz
+        except ImportError:
+            import fitz
         doc = fitz.open(stream=data, filetype="pdf")
         n = min(len(doc), MAX_PDF_PAGES)
         text = "\n".join(doc[i].get_text() for i in range(n)).strip()
@@ -59,6 +66,8 @@ class FileReader(Feature):
             imgs = []
             for i in range(min(len(doc), MAX_SCAN_PAGES)):
                 pix = doc[i].get_pixmap(dpi=150)
-                imgs.append(Image.frombytes("RGB", [pix.width, pix.height], pix.samples))
+                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                img.thumbnail((1600, 1600))
+                imgs.append(img)
             ctx["images"] = imgs
         return text

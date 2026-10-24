@@ -18,5 +18,6 @@ class OcrVL(Feature):
         parts = [ctx["models"].read_image(img, OCR_PROMPT) for img in ctx["images"]]
         text = "\n\n".join(p for p in parts if p)
         ctx["document_text"] = (ctx["document_text"] + "\n\n" + text).strip()
+        ctx["answer"]["read_text"] = ctx["document_text"][:3000]   # user dekhe check korbe OCR thik kina
         compose_question(ctx)
         return ctx

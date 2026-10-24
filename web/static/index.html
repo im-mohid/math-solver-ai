@@ -11,34 +11,38 @@
   <script defer src="/static/app.js"></script>
 </head>
 <body>
-  <main>
-    <h1>Math Solver AI</h1>
-    <div id="status" class="badge">Model status check hocche...</div>
+  <header>
+    <strong>Math Solver AI</strong>
+    <span id="status" class="badge">check hocche...</span>
+    <button id="newChat" class="ghost" type="button">+ Notun chat</button>
+  </header>
 
-    <textarea id="question" rows="5" maxlength="5000"
-      placeholder="Math question likho (LaTeX hole $x^2$ format e), ba niche file upload koro..."></textarea>
+  <div id="chat">
+    <div class="msg assistant" id="welcome">Hi! Math question likho, ba file upload koro. Ager kotha mone rekhe chat kore bujhiye debo.</div>
+  </div>
 
-    <div class="row">
-      <label class="filebtn">
-        📎 File upload (PDF / TXT / Photo)
-        <input id="file" type="file" accept=".pdf,.txt,.md,.tex,.png,.jpg,.jpeg,.webp" hidden>
-      </label>
-      <span id="fileName" class="muted"></span>
-      <button id="clearFile" class="link hidden" type="button">✕ shoriye dao</button>
-    </div>
-
-    <div class="row">
-      <label>Uttor er bhasha:
-        <select id="language">
-          <option value="bn">বাংলা</option>
-          <option value="en">English</option>
+  <footer>
+    <div class="opts">
+      <label>🔎 Web search
+        <select id="search">
+          <option value="auto">Auto (na janle khujbe)</option>
+          <option value="on">Shobshomoy</option>
+          <option value="off">Off</option>
         </select>
       </label>
-      <button id="askBtn">Solve koro</button>
+      <label><input type="checkbox" id="think"> 🧠 Deep think (dhimey, kintu bhalo)</label>
+      <label>ভাষা
+        <select id="language"><option value="bn">বাংলা</option><option value="en">English</option></select>
+      </label>
     </div>
-
-    <div id="progress" class="hidden"></div>
-    <div id="answer" class="hidden"></div>
-  </main>
+    <div id="fileRow" class="muted hidden"><span id="fileName"></span> <button id="clearFile" class="link" type="button">✕</button></div>
+    <div class="composer">
+      <label class="attach" title="PDF / TXT / Photo">📎
+        <input id="file" type="file" accept=".pdf,.txt,.md,.tex,.png,.jpg,.jpeg,.webp" hidden>
+      </label>
+      <textarea id="question" rows="1" maxlength="5000" placeholder="Message likho... (Enter = pathao, Shift+Enter = notun line)"></textarea>
+      <button id="askBtn">Pathao</button>
+    </div>
+  </footer>
 </body>
 </html>

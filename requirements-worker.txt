@@ -7,3 +7,6 @@ transformers>=4.51
 accelerate
 bitsandbytes
 peft
+ddgs
+requests
+beautifulsoup4
