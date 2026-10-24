@@ -1,15 +1,36 @@
-model:
-  enabled: false                 # Phase 0: false (dummy answer). Phase 1: true
-  name: "Qwen/Qwen3-8B"          # latest model check kore nio
-  load_in_4bit: true
-  lora_path: ""                  # pore Drive/HF theke LoRA path
+models:
+  load_in_4bit: true            # T4 (16GB) e dui model ekshathe rakhte true rakho
+
+  language:                     # Bangla/English byakkha (Qwen)
+    enabled: false              # Phase 1: true
+    name: "Qwen/Qwen3-8B"       # latest model check kore nio
+    lora_path: ""               # Bangla fine-tune hole Drive path
+    resident: true              # true = GPU te load-i thakbe
+    thinking: false
+    max_new_tokens: 1800
+
+  expert:                       # TOMAR super expert math model
+    enabled: false              # model ready hole true
+    name: ""                    # HF repo (jemon "username/my-math-model") ba Drive folder path
+    lora_path: ""               # jodi LoRA adapter hoy (base model ta name e dao)
+    resident: true              # GPU te jayga na hole false koro (ekta ekta kore load hobe, slow)
+    thinking: true
+    max_new_tokens: 3000
+
+  ocr:                          # photo / scanned PDF porar jonno (vision model)
+    enabled: false
+    name: "Qwen/Qwen2.5-VL-3B-Instruct"
+    resident: false             # shudhu dorkar hole load hobe
 
 worker:
   poll_interval_sec: 2
   heartbeat_sec: 20
-  stale_job_minutes: 10          # processing e atke thakle abar pending
+  stale_job_minutes: 10
 
 features:
-  dummy_solver:      {enabled: true}    # Phase 1 e false koro
-  llm_solver:        {enabled: false}   # Phase 1 e true koro
-  formatter_bangla:  {enabled: true}
+  file_reader:        {enabled: true}   # txt / pdf / image upload pora
+  ocr_vl:             {enabled: true}   # model flag (models.ocr.enabled) na dile kichu kore na
+  dummy_solver:       {enabled: true}   # kono model on na thakle test answer dey
+  expert_solver:      {enabled: true}   # models.expert.enabled lagbe
+  language_explainer: {enabled: true}   # models.language.enabled lagbe
+  formatter_bangla:   {enabled: true}

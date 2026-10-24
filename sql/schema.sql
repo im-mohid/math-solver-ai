@@ -6,7 +6,7 @@ create table if not exists jobs (
   status        text default 'pending',    -- pending | processing | done | error
   input_type    text default 'text',       -- text | image | pdf | txt
   question      text,
-  file_url      text,
+  file_url      text,                      -- Supabase Storage path (bucket: uploads)
   options       jsonb default '{}'::jsonb,
   answer        jsonb,
   error         text,
@@ -23,7 +23,6 @@ create table if not exists worker_heartbeat (
   info       jsonb default '{}'::jsonb
 );
 
--- Atomic claim: duita worker ek-i job nite parbe na
 create or replace function claim_job(p_worker text)
 returns setof jobs
 language plpgsql
@@ -43,7 +42,10 @@ begin
 end;
 $$;
 
--- Server-side only: RLS on, kono policy nai. service_role key RLS bypass kore,
--- tai browser/anon key diye kichu access kora jabe na.
 alter table jobs enable row level security;
 alter table worker_heartbeat enable row level security;
+
+-- Upload er jonno private bucket (public = false)
+insert into storage.buckets (id, name, public)
+values ('uploads', 'uploads', false)
+on conflict (id) do nothing;

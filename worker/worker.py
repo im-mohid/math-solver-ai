@@ -7,7 +7,8 @@ import traceback
 from supabase import create_client
 
 from worker.core.registry import load_config, load_features
-from worker.model_loader import load_model
+from worker.core.errors import UserError
+from worker.model_loader import ModelManager
 from worker.pipeline import solve
 
 sb = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"])
@@ -30,11 +31,16 @@ def requeue_stale(minutes):
         .eq("status", "processing").lt("started_at", cutoff).execute()
 
 
+def download(path):
+    return sb.storage.from_("uploads").download(path)
+
+
 def main():
     cfg = load_config()
     wcfg = cfg.get("worker", {})
     features = load_features(cfg)
-    model = load_model(cfg)
+    models = ModelManager(cfg)
+    models.preload()
 
     print(f"[worker] {WORKER_ID} ready. features:", [f.name for f in features])
     last_hb = 0.0
@@ -61,11 +67,16 @@ def main():
         job = res[0]
         print("[worker] job", job["id"])
         try:
-            answer = solve(job, model, features)
+            answer = solve(job, models, features, download=download)
             sb.table("jobs").update({
                 "status": "done", "answer": answer, "finished_at": now_iso(),
             }).eq("id", job["id"]).execute()
+        except UserError as e:
+            sb.table("jobs").update({
+                "status": "error", "error": "USER: " + str(e), "finished_at": now_iso(),
+            }).eq("id", job["id"]).execute()
         except Exception:
+            traceback.print_exc()
             sb.table("jobs").update({
                 "status": "error", "error": traceback.format_exc()[-1500:],
                 "finished_at": now_iso(),

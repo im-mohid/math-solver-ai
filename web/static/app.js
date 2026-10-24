@@ -62,6 +62,12 @@ function renderAnswer(a) {
     add(box, "h3", "Final answer");
     add(box, "div", a.final_answer, "final");
   }
+  if (a.expert_solution) {
+    const det = document.createElement("details");
+    add(det, "summary", "Expert model er mul solution (verify korar jonno)");
+    add(det, "pre", a.expert_solution);
+    box.appendChild(det);
+  }
   const meta = add(box, "div", "", "meta");
   if (a.verification) add(meta, "div", "Verification: " + (a.verification.method || "-") + (a.verification.passed ? " ✓" : ""));
   if (a.confidence) add(meta, "div", "Confidence: " + a.confidence);
@@ -96,19 +102,37 @@ async function poll(id, tries = 0) {
   setTimeout(() => poll(id, tries + 1), 2000);
 }
 
+const MAX_FILE = 10 * 1024 * 1024;
+
+$("file").addEventListener("change", () => {
+  const f = $("file").files[0];
+  $("fileName").textContent = f ? f.name : "";
+  $("clearFile").classList.toggle("hidden", !f);
+});
+$("clearFile").addEventListener("click", () => {
+  $("file").value = "";
+  $("fileName").textContent = "";
+  $("clearFile").classList.add("hidden");
+});
+
 $("askBtn").addEventListener("click", async () => {
   const q = $("question").value.trim();
-  if (!q) return;
+  const f = $("file").files[0];
+  if (!q && !f) return;
+  if (f && f.size > MAX_FILE) { $("progress").classList.remove("hidden"); $("progress").textContent = "⚠ File 10 MB er beshi"; return; }
+
   $("askBtn").disabled = true;
   $("answer").classList.add("hidden");
   $("progress").classList.remove("hidden");
-  $("progress").textContent = "Pathano hocche...";
+  $("progress").textContent = f ? "File upload hocche..." : "Pathano hocche...";
+
+  const fd = new FormData();
+  fd.append("question", q);
+  fd.append("language", $("language").value);
+  if (f) fd.append("file", f);
+
   try {
-    const r = await fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: q }),
-    });
+    const r = await fetch("/api/ask", { method: "POST", body: fd });   // Content-Type browser nijei dey
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "Request fail");
     poll(j.job_id);

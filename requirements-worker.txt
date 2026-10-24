@@ -1,7 +1,9 @@
 supabase>=2.5
 pyyaml>=6.0
-# Phase 1 e model on korle nicher gulo uncomment koro:
-# torch
-# transformers
-# accelerate
-# bitsandbytes
+pymupdf>=1.24
+pillow>=10.0
+# Model gulor jonno (Colab e torch age theke install thake):
+transformers>=4.51
+accelerate
+bitsandbytes
+peft

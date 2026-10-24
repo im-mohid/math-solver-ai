@@ -16,8 +16,26 @@
     <div id="status" class="badge">Model status check hocche...</div>
 
     <textarea id="question" rows="5" maxlength="5000"
-      placeholder="Math question likho (LaTeX hole $x^2$ format e)..."></textarea>
-    <button id="askBtn">Solve koro</button>
+      placeholder="Math question likho (LaTeX hole $x^2$ format e), ba niche file upload koro..."></textarea>
+
+    <div class="row">
+      <label class="filebtn">
+        📎 File upload (PDF / TXT / Photo)
+        <input id="file" type="file" accept=".pdf,.txt,.md,.tex,.png,.jpg,.jpeg,.webp" hidden>
+      </label>
+      <span id="fileName" class="muted"></span>
+      <button id="clearFile" class="link hidden" type="button">✕ shoriye dao</button>
+    </div>
+
+    <div class="row">
+      <label>Uttor er bhasha:
+        <select id="language">
+          <option value="bn">বাংলা</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+      <button id="askBtn">Solve koro</button>
+    </div>
 
     <div id="progress" class="hidden"></div>
     <div id="answer" class="hidden"></div>

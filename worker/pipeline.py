@@ -1,9 +1,13 @@
-def solve(job, model, features):
+def solve(job, models, features, download=None):
     ctx = {
         "job": job,
-        "model": model,
-        "question": job["question"],
+        "models": models,
+        "download": download,            # Storage theke file nambanor function
+        "user_question": (job.get("question") or "").strip(),
+        "question": (job.get("question") or "").strip(),
         "options": job.get("options") or {},
+        "images": [],
+        "document_text": "",
         "sources": [],
         "answer": {},
     }

@@ -3,7 +3,7 @@
 Page (Render) <-> Supabase (jobs queue) <-> Worker (Colab, GPU)
 
 ## Setup (Phase 0)
-1. Supabase SQL Editor e `sql/schema.sql` run koro.
+1. Supabase SQL Editor e `sql/schema.sql` run koro. (Ager schema already run kora thakle shudhu `sql/002_uploads_bucket.sql` run koro.)
 2. GitHub e ei repo push koro.
 3. Render: New Web Service -> repo connect
    - Build: `pip install -r requirements-web.txt`
@@ -21,3 +21,9 @@ pip install -r requirements-web.txt
 export SUPABASE_URL=... SUPABASE_SERVICE_KEY=...
 python -m web.app
 ```
+
+## Model gulo (config.yaml > models)
+- `language`: Qwen, Bangla/English byakkha
+- `expert`: tomar math model (`name` e HF repo ba Drive path, LoRA hole `lora_path`)
+- `ocr`: photo/scanned PDF er jonno vision model
+Prottek ta `enabled: true` korle load hobe. Flow: expert solve kore -> language model byakkha kore.
