@@ -1,0 +1,15 @@
+model:
+  enabled: false                 # Phase 0: false (dummy answer). Phase 1: true
+  name: "Qwen/Qwen3-8B"          # latest model check kore nio
+  load_in_4bit: true
+  lora_path: ""                  # pore Drive/HF theke LoRA path
+
+worker:
+  poll_interval_sec: 2
+  heartbeat_sec: 20
+  stale_job_minutes: 10          # processing e atke thakle abar pending
+
+features:
+  dummy_solver:      {enabled: true}    # Phase 1 e false koro
+  llm_solver:        {enabled: false}   # Phase 1 e true koro
+  formatter_bangla:  {enabled: true}

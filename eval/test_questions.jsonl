@@ -1,0 +1,2 @@
+{"id": 1, "question": "Solve $x^2 - 5x + 6 = 0$.", "expected": "x=2 or x=3", "level": "school"}
+{"id": 2, "question": "Compute $\\int_0^1 x e^x\\,dx$.", "expected": "1", "level": "undergrad"}
