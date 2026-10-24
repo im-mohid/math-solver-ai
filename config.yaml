@@ -2,7 +2,7 @@ models:
   load_in_4bit: true            # T4 (16GB) e dui model ekshathe rakhte true rakho
 
   language:                     # Bangla/English byakkha (Qwen)
-    enabled: false              # Phase 1: true
+    enabled: true              # Phase 1: true
     name: "Qwen/Qwen3-8B"       # latest model check kore nio
     lora_path: ""               # Bangla fine-tune hole Drive path
     resident: true              # true = GPU te load-i thakbe
